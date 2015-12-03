@@ -66,7 +66,7 @@ while True:
     print '\t\t\t\t\t\t\t\t\t\t\t\t\t 0x{0:0X}'.format(cap.touched())
     filtered = [cap.filtered_data(i) for i in range(12)]
     print 'Filt:', '\t,'.join(map(str, filtered))
-	dataf = (','.join(map(str, filtered)))
+    dataf = (','.join(map(str, filtered)))
     writer.write(dataf)
     writer.write('\n')
     base = [cap.baseline_data(i) for i in range(12)]
