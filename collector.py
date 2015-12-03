@@ -3,17 +3,25 @@ import sys
 import time
 import os
 import Adafruit_MPR121.MPR121 as MPR121
+import re
 
 def collector(addr,i2cbus=None):
 	cap = MPR121.MPR121()
 	cap.begin(address=addr,i2c=i2cbus)
+	filename = os.path.basename(__file__)
+	filename = re.split('.py',filename)
+	filename = filename[0]
+
 	if not cap.begin():
     print 'Error initializing MPR121.  Check your wiring!'
     sys.exit(1)
 	#remind user on how to exit program
 	print 'Controller ' + os.path.basename(__file__)+ ' Press CNTRL-C to exit'
+	
+	writer = open('{0}Filt.csv'.format(filename),'w')
+	writer2 = open('{0}Base.csv'.format(filename),'w')
 
-	last_touched = cap.touched()
+last_touched = cap.touched()
 	while True:
     	current_touched = cap.touched()
 		print time.now()
@@ -31,13 +39,16 @@ def collector(addr,i2cbus=None):
 		print time.now
     	# Update last state
     	last_touched = current_touched
-#    	time.sleep(0.1)
-		print time.now()
 		#print out all relevant data
 		print '\t\t\t\t\t\t\t\t\t\t\t\t\t 0x{0:0X}'.format(cap.touched())
-		filtered = [cap.filtered_data(i) for i in range(12)]
-		print 'Filt:', '\t'.join(map(str, filtered))
-		base = [cap.baseline_data(i) for i in range(12)]
-		print 'Base:', '\t'.join(map(str, base))
-		#sleep the system briefly before next readings
-		time.sleep(0.1)
+	    filtered = [cap.filtered_data(i) for i in range(12)]
+    	print 'Filt:', '\t,'.join(map(str, filtered))
+		dataf = (','.join(map(str, filtered)))
+    	writer.write(dataf)
+    	writer.write('\n')
+    	base = [cap.baseline_data(i) for i in range(12)]
+    	print 'Base:', '\t,'.join(map(str, base))
+		datab = (','.join(map(str, base)))
+    	writer2.write(datab)
+    	writer2.write('\n')
+		sleep(0.1)
