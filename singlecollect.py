@@ -4,7 +4,7 @@ import time
 import os
 import Adafruit_MPR121.MPR121 as MPR121
 import re
-#from serialWrite import serialwriter
+from serialWrite import serialwriter
 
 
 filename = os.path.basename(__file__)
@@ -75,5 +75,6 @@ while True:
     datab = (','.join(map(str, base)))
     writer2.write(datab)
     writer2.write('\n')
-    #serialwriter(datab)
+    serialwriter(datab)
+    print 'Written'
 
