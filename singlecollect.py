@@ -3,7 +3,8 @@ import sys
 import time
 import os
 import Adafruit_MPR121.MPR121 as MPR121
-from serialWrite import serialwriter
+import re
+#from serialWrite import serialwriter
 
 
 filename = os.path.basename(__file__)
@@ -71,8 +72,8 @@ while True:
     writer.write('\n')
     base = [cap.baseline_data(i) for i in range(12)]
     print 'Base:', '\t,'.join(map(str, base))
-	datab = (','.join(map(str, base)))
+    datab = (','.join(map(str, base)))
     writer2.write(datab)
     writer2.write('\n')
-	serialwriter(datab)
+    #serialwriter(datab)
 
