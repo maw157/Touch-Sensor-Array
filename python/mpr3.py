@@ -77,4 +77,3 @@ while True:
     writer2.write('\n')
     serialwriter(datab)
     print 'Written'
-
