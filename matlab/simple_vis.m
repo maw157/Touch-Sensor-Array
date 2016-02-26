@@ -1,4 +1,4 @@
-
+%Open single_zip.csv and import before proceeding
 
 M = zeros(37,22);
 
