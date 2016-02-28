@@ -4,7 +4,7 @@ import time
 import os
 import Adafruit_MPR121.MPR121 as MPR121
 import re
-from serialWrite import serialwriter
+from serial_write import serialwriter
 
 
 filename = os.path.basename(__file__)

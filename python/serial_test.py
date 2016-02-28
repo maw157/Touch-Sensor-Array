@@ -1,15 +1,7 @@
-import os
-import re
-import serial
+from serial_write import serialwriter
 
-writer = serial.Serial( 
-			port = '/dev/ttyAMA0',
-			baudrate = 9600,
-			parity = serial.PARITY_NONE,
-			stopbits = serial.STOPBITS_ONE,
-			bytesize = serial.EIGHTBITS,
-			timeout = 1
-			)
-while 1:
-    writer.write('12313')
+count = 0
 
+while count < 1000:
+    serialwriter(str(count) + '\r\n')
+    count += 1
