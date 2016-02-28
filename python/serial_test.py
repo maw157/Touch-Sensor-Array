@@ -1,3 +1,5 @@
+#!/usr/bin/env python
+
 from serial_write import serialwriter
 
 count = 0

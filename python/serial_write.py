@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+
 import time
 import serial
 
@@ -12,5 +13,5 @@ def serialwriter(data):
 				bytesize = serial.EIGHTBITS,
 				timeout = 1
 				)
-	writer.write(data)
 
+	writer.write(data)
