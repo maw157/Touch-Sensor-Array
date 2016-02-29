@@ -8,7 +8,7 @@ import re
 import Adafruit_MPR121.MPR121 as MPR121
 from serial_write import serialwriter
 
-def collector(addr,i2cbus=None):
+def collector(addr,filename,i2cbus=None):
 
 	# Create MPR121 instance
 	cap = MPR121.MPR121()
@@ -17,19 +17,30 @@ def collector(addr,i2cbus=None):
 		sys.exit(1)
 
 	# Get filename
-	filename = os.path.basename(__file__)
 	filename = re.split('\.py',filename)
 	filename = filename[0]
 
 	# Open csv data dump files
-	writer_filt = open('{0}_filt.csv'.format(filename),'w')
-	writer_base = open('{0}_base.csv'.format(filename),'w')
+	writer_filt = open('../data/{0}_filt.csv'.format(filename),'w')
+	writer_base = open('../data/{0}_base.csv'.format(filename),'w')
 
 	# Remind user how to exit program
 	print 'Controller ' + filename + ': Press Ctl-C to exit'
 
+	# Set device ID
+	if addr == 0x5A:
+		id = 'A'
+	elif addr == 0x5B:
+		id = 'B'
+	elif addr == 0x5C:
+		id = 'C'
+	else:
+		id = 'D'
+
 	# Main loop
 	last_touched = cap.touched()
+	count = 0
+
 	while True:
 		current_touched = cap.touched()
 		# Check each pin's last and current state to see if it was pressed or released.
@@ -61,14 +72,18 @@ def collector(addr,i2cbus=None):
 		#print 'Base:', '\t,'.join(map(str, base))
 
 		# Dump data into csv files
-		data_filt = (','.join(map(str, filtered)))
-		writer_filt.write(data_filt + '\n')
+		data_filt = (','.join(map(str, filtered))) + '\n'
+		writer_filt.write(data_filt)
 
-		data_base = (','.join(map(str, base)))
-		writer_base.write(data_base + '\n')
+		data_base = (','.join(map(str, base))) + '\n'
+		writer_base.write(data_base)
 
 		# Transmit data over serial connection
-		serialwriter(data_filt)
-		serialwriter(data_base)
 
+		data_filt = id + ',' + str(count) + ',' + data_filt
+		serialwriter(data_filt)
+
+		#serialwriter(data_base)
+		
+		count = count + 1
 		time.sleep(0.1)
