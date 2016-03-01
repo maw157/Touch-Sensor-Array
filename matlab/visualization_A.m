@@ -12,6 +12,10 @@
 % Class:    EECS 399
 % Project:  Flexible Sensor Array
 
+fclose(instrfind);
+clear all
+clc
+
 %% Initialize the serial port object
 %
 % The value of the 'port' variable should be changed depending on which
@@ -48,7 +52,8 @@ fopen(obj);
 
 figure_handle = figure('NumberTitle','off',...
                        'Name','Visualization A',...
-                       'Visible','off');
+                       'Visible','off',...
+                       'WindowButtonDownFcn',@(stop)(stop+1));
 
 axes_handle = axes('Parent',figure_handle,'YDir','reverse');
 axis equal;
@@ -58,14 +63,15 @@ hold on;
 % Initialize empty visualization matrix
 M = zeros(37,22);
 no_handle = 1;
+count = 0;
 
 %% Begin data collection and visualization
 
-while BytesAvailable > 0
+while count < 10000
     % Collect data from serial port and separate electrode streams
-    data = fscanf(port);
-    vars = textscan(data,'%f%f%f%f%f%f%f%f%f%f%f%f','delimiter',',');
-    [cap1, cap2, cap3, cap4, cap5, cap6,...
+    data = fscanf(obj);
+    vars = textscan(data,'%s%d%f%f%f%f%f%f%f%f%f%f%f%f','delimiter',',');
+    [id, count, cap1, cap2, cap3, cap4, cap5, cap6,...
         cap7, cap8, cap9, cap10, cap11, cap12] = deal(vars{:});
 
     % Draw electrodes and update activation status
@@ -87,11 +93,14 @@ while BytesAvailable > 0
     
     % Plot data - if we don't have a handle for the contour object yet, get
     % one so that we can set the 'ZData' property to update the
-    % visualization more quickly in future loop-throughs
+    % visualization more quickly in future loop-throughs. Also, make it
+    % easier to terminate the program with a keypress.
     if no_handle
         [~,contour_handle] = contourf(M,10);
         set(figure_handle,'Visible','on')
         no_handle = 0;
+    elseif ~isempty(get(figure_handle,'CurrentCharacter'))
+        break;
     else
         set(contour_handle,'ZData',M)
         drawnow
