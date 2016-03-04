@@ -2101,6 +2101,6 @@ for i = 1:length(VarName1)
     set(gca,'YDir','reverse')
     axis equal
     drawnow
-    pause(0.05)
+    pause(0.001)
     
 end
