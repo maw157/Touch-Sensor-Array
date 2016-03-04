@@ -4,9 +4,10 @@ import sys
 import time
 import os
 import re
+import serial
+import fcntl
 
 import Adafruit_MPR121.MPR121 as MPR121
-from serial_write import serialwriter
 
 def collector(addr,filename,i2cbus=None):
 
@@ -29,17 +30,18 @@ def collector(addr,filename,i2cbus=None):
 
 	# Set device ID
 	if addr == 0x5A:
-		id = 'A'
+		id = 1
 	elif addr == 0x5B:
-		id = 'B'
+		id = 2
 	elif addr == 0x5C:
-		id = 'C'
+		id = 3
 	else:
-		id = 'D'
+		id = 4
 
 	# Main loop
 	last_touched = cap.touched()
 	count = 0
+	buffer = []
 
 	while True:
 		current_touched = cap.touched()
@@ -78,12 +80,34 @@ def collector(addr,filename,i2cbus=None):
 		data_base = (','.join(map(str, base))) + '\n'
 		writer_base.write(data_base)
 
-		# Transmit data over serial connection
+		# Transmit data to serial mux server
+		data_filt = str(id) + ',' + str(count) + ',' + data_filt
+		buffer.append(data_filt)
 
-		data_filt = id + ',' + str(count) + ',' + data_filt
-		serialwriter(data_filt)
+		try:
+			port = serial.Serial(
+						port = '/dev/ttyAMA0',
+						baudrate = 9600,
+						parity = serial.PARITY_NONE,
+						stopbits = serial.STOPBITS_ONE,
+						bytesize = serial.EIGHTBITS,
+						timeout = 1
+						)
 
-		#serialwriter(data_base)
+			#if port.isOpen():
+				#try:
+					#fcntl.flock(port.fileno(), fcntl.LOCK_EX | fcntl.LOCK_NB)
+				#except IOError:
+					#count = count + 1
+					#continue
+				#else:
+					#yield port
+		except serial.SerialException as ex:
+			print 'Port /dev/ttyAMA0  is unavailable: {0}:'.format(ex)
+		else:
+			port.write(buffer[0])
+			del buffer[0]
+			#fcntl.flock(port.fileno(), fcntl.LOCK_UN)
 		
 		count = count + 1
 		time.sleep(0.1)
